@@ -1,0 +1,19 @@
+{
+  "name": "علوم الفنجال",
+  "short_name": "علوم الفنجال",
+  "description": "مولد محتوى وصور احترافية للكافيهات الكويتية",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f1e8",
+  "theme_color": "#182521",
+  "dir": "rtl",
+  "lang": "ar-KW",
+  "icons": [
+    {
+      "src": "/static/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
