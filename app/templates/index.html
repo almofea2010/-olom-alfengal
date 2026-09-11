@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>علوم الفنجال</title>
+  <meta name="theme-color" content="#182521">
+  <meta name="description" content="مولد محتوى وصور احترافية للكافيهات الكويتية">
+  <link rel="manifest" href="{{ url_for('static', path='manifest.json') }}">
+  <link rel="icon" href="{{ url_for('static', path='icon.svg') }}" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Changa:wght@400;500;600;700&family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="علوم الفنجال">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 92 72" role="img">
+            <path class="logo-steam steam-one" d="M36 25c-5-8 6-10 1-18" />
+            <path class="logo-steam steam-two" d="M51 25c-5-8 6-10 1-18" />
+            <path class="logo-cup" d="M25 27h35v13c0 10-8 18-18 18s-17-8-17-18V27Z" />
+            <path class="logo-handle" d="M60 31h7c11 0 11 15 0 15h-7" />
+            <path class="logo-wood" d="M12 58h67c3 0 5 2 5 5s-2 5-5 5H12c-3 0-5-2-5-5s2-5 5-5Z" />
+            <path class="logo-grain" d="M18 63h11m8 0h16m8 0h12" />
+          </svg>
+        </span>
+        <span>علوم الفنجال</span>
+      </a>
+      <div class="header-actions">
+        <button id="install-button" class="install-button" type="button" hidden>ثبّت التطبيق</button>
+        <span class="status"><i></i> جاهز للحمسة</span>
+      </div>
+    </header>
+
+    <section class="intro">
+      <p class="eyebrow">علوم الفنجال</p>
+      <h1>القهوة لها سالفة.<br><em>والسوالف لها وقت.</em></h1>
+      <p class="lede">جهّز تفاصيل محتوى كافيهك من مكان واحد، واختر الجو المناسب للبوست.</p>
+    </section>
+
+    <section class="workspace options-only">
+      <form class="composer" action="/prepare" method="post">
+        <div class="section-heading">
+          <span class="step">01</span>
+          <div><h2>تفاصيل البوست</h2><p>حدد الفكرة والهوية قبل تجهيز المحتوى.</p></div>
+        </div>
+        <label for="idea">فكرة البوست</label>
+        <textarea id="idea" name="idea" maxlength="500" placeholder="مثال: عرض على اللاتيه البارد حق زوارة الخميس..." required></textarea>
+
+        <div class="media-heading">
+          <label for="post-images">صور البوست <small>اختياري</small></label>
+          <span>من محفوظات جهازك</span>
+        </div>
+        <label class="upload-zone" for="post-images">
+          <input id="post-images" type="file" accept="image/*" multiple>
+          <span class="upload-icon" aria-hidden="true">+</span>
+          <span><strong>أضف صورك</strong><small>اختر صورة أو أكثر من الجهاز</small></span>
+        </label>
+        <input id="image-data" name="image_data" type="hidden" value="">
+        <div class="image-preview" id="image-preview" aria-live="polite"></div>
+
+        <div class="section-heading compact-heading">
+          <span class="step">02</span>
+          <div><h2>اختَر الجو</h2><p>نضبط التجربة على المزاج الكويتي.</p></div>
+        </div>
+        <div class="mood-grid">
+          {% for option in ['زوارة الخميس', 'صباح القهوة', 'أجواء الويكند', 'عرض اليوم', 'رمضان', 'جلسة الديوانية'] %}
+          <label class="mood-option"><input type="radio" name="mood" value="{{ option }}" {% if loop.first %}checked{% endif %}><span>{{ option }}</span></label>
+          {% endfor %}
+        </div>
+
+        <div class="detail-row">
+          <div><label for="cafe_name">اسم الكافيه <small>اختياري</small></label><input id="cafe_name" name="cafe_name" placeholder="مثال: مزاج" maxlength="120"></div>
+          <div><label for="tone">الأسلوب</label><select id="tone" name="tone"><option>حماسي</option><option>رايق</option><option>رسمي خفيف</option></select></div>
+        </div>
+        <button class="primary-button" id="prepare-post" type="submit"><span>عدّل النص بالذكاء الاصطناعي</span><b>←</b></button>
+      </form>
+
+      <section class="result-panel">
+        <div class="result-topline"><span>علوم الفنجال</span><span class="spark">✦</span></div>
+        {% if error %}<div class="error-message">{{ error }}</div>{% endif %}
+        {% if result %}
+        <article class="post-result">
+          {% if image %}<img class="result-image" src="{{ image }}" alt="صورة البوست"><div class="result-image-label">صورة البوست</div>{% endif %}
+          <div class="post-copy">{{ result.text }}</div>
+          <div class="cta-line">{{ result.call_to_action }}</div>
+          <div class="tags">{% for tag in result.hashtags %}<span>{{ tag }}</span>{% endfor %}</div>
+        </article>
+        {% else %}
+        <div class="empty-result" id="post-summary"><div class="empty-icon">✦</div><h2>خياراتك جاهزة</h2><p>اكتب الفكرة واضغط الزر لتعديل النص بصياغة مختلفة.</p></div>
+        {% endif %}
+      </section>
+    </section>
+    <footer><span>صُنع للكافيهات اللي تحب تسوي فرق</span><span>علوم الفنجال · MVP</span></footer>
+  </main>
+  <script src="{{ url_for('static', path='app.js') }}"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => navigator.serviceWorker.register('/static/sw.js'));
+    }
+  </script>
+</body>
+</html>
