@@ -23,7 +23,7 @@ def _generate_with_openai(request: PostRequest) -> PostResult:
         temperature=0.95,
         response_format={"type": "json_object"},
         messages=[
-            {"role": "system", "content": "أنت كاتب محتوى كويتي مبتكر، لا تكرر الصياغة."},
+            {"role": "system", "content": "أنت كاتب محتوى كويتي مبتكر ومحرر إعلانات. اكتب نصوصاً محسوسة ومحددة، واكشف الفكرة من أول سطر. ارفض الصياغات العامة والمكررة."},
             {"role": "user", "content": build_prompt(request)},
         ],
     )
@@ -39,21 +39,47 @@ def _generate_with_openai(request: PostRequest) -> PostResult:
 
 def _generate_local(request: PostRequest) -> PostResult:
     cafe = request.cafe_name or "كافيهكم"
-    openings = [
-        f"اليوم المزاج غير مع {request.idea}.",
-        f"لما تجتمع أجواء {request.mood} مع {request.idea}، تصير السالفة غير.",
-        f"خذوا لكم وقفة حلوة مع {request.idea} في {cafe}.",
+    idea = request.idea.rstrip(".!؟")
+    mood_lines = {
+        "زوارة الخميس": "خلّوا جمعة الخميس تبدأ بشي يفتح السالفة من أول رشفة.",
+        "صباح القهوة": "صباحكم يستاهل بداية أهدى وألذ من المعتاد.",
+        "أجواء الويكند": "الويكند ما يحتاج خطة كبيرة، يحتاج اختيار يضبط اليوم.",
+        "عرض اليوم": "إذا كانت هذي وقفتكم اليوم، خلّوها محسوبة من أولها.",
+        "رمضان": "بعد الإفطار، خذوا وقتكم مع نكهة تخلي الجلسة أطول وأحلى.",
+        "جلسة الديوانية": "الجلسة الزينة تعرفها من أول ما يدور الفنجال بين الحضور.",
+    }
+    tone_lines = {
+        "حماسي": [
+            f"جاهزين لشي يرفع مستوى {idea}؟",
+            f"اليوم عندنا سبب قوي يخلي {idea} نجم الجلسة.",
+        ],
+        "رايق": [
+            f"خذوا نفساً هادئاً وخلو {idea} ياخذ وقته.",
+            f"بعض الأيام يكفيها {idea} مضبوط ووقت على رواق.",
+        ],
+        "رسمي خفيف": [
+            f"نقدم لكم {idea} بتفاصيل تليق بذوقكم.",
+            f"اختياركم اليوم: {idea}، بطريقة مرتبة وواضحة.",
+        ],
+    }
+    sensory_lines = [
+        f"في {cafe} نهتم بالتفاصيل اللي تبين من أول تجربة، من النكهة إلى آخر رشفة.",
+        "اختيار مناسب للي يبي طعم واضح وجلسة ما تنتهي بسرعة.",
+        "الفكرة بسيطة، لكن الفرق يبان لما تكون التفاصيل مضبوطة.",
     ]
-    closings = [
-        "مرّوا علينا وخلوها لحظة تستاهل.",
-        "ناطرينكم على فنجال يضبط المزاج.",
-        "خلّوا جمعتكم تبدأ من عندنا.",
+    calls_to_action = [
+        f"مرّوا على {cafe} وخلو التجربة تحكم.",
+        "اطلبوها اليوم وشاركونا أول انطباع.",
+        "خلّوا خطوتكم الجاية على مزاجكم.",
     ]
-    opening = secrets.choice(openings)
-    closing = secrets.choice(closings)
+    tone_options = tone_lines.get(request.tone, tone_lines["حماسي"])
+    opening = secrets.choice(tone_options)
+    sensory = secrets.choice(sensory_lines)
+    mood_line = mood_lines.get(request.mood, "اختاروا وقتكم، والباقي علينا.")
+    closing = secrets.choice(calls_to_action)
     return PostResult(
-        text=f"{opening}\n{closing}",
-        hashtags=["#قهوة", "#كافيهات_الكويت", "#مزاج_كويتي"],
-        call_to_action="زورونا اليوم.",
+        text=f"{opening}\n{mood_line}\n{sensory}",
+        hashtags=["#قهوة", f"#{request.mood.replace(' ', '_')}", "#كافيهات_الكويت", "#مزاج_كويتي"],
+        call_to_action=closing,
         mode="local",
     )
